@@ -51,7 +51,7 @@ module Flock
       iterate(select_query(select_operations), page)
     end
 
-    def contains(source, graph, dest)         
+    def contains(source, graph, dest)
       forward_edges[graph][:normal][source].include?(dest)
     end
 
