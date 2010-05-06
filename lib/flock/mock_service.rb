@@ -5,7 +5,8 @@ module Flock
     EXEC_OPS = {
       Edges::ExecuteOperationType::Add => :add,
       Edges::ExecuteOperationType::Remove => :remove,
-      Edges::ExecuteOperationType::Archive => :archive
+      Edges::ExecuteOperationType::Archive => :archive,
+      Edges::ExecuteOperationType::Negate => :negate
     }
 
     attr_accessor :timeout, :fixtures
@@ -50,7 +51,7 @@ module Flock
       iterate(select_query(select_operations), page)
     end
 
-    def contains(source, graph, dest)
+    def contains(source, graph, dest)         
       forward_edges[graph][:normal][source].include?(dest)
     end
 
@@ -184,6 +185,12 @@ module Flock
     def remove(source, graph, dest)
       remove_node(source, graph, dest, :archived)
       remove_node(source, graph, dest, :normal)
+    end
+
+    def negate(source, graph, dest)
+      remove_node(source, graph, dest, :normal).tap do |negated|
+        negated.each {|source, graph, dest| add_edge(source, graph, dest, :negate) }
+      end
     end
 
     def archive(source, graph, dest)
